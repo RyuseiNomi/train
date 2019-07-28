@@ -47,6 +47,8 @@ func main() {
 			if targetTrain == train.Name {
 				fmt.Println("遅延しています。最終更新: %v", train.LastUpdateGmt)
 				continue
+			} else {
+				fmt.Println("正常に運行しています")
 			}
 		}
 
