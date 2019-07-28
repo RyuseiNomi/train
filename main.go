@@ -12,7 +12,8 @@ import (
 )
 
 var (
-	delayTrains []DelayTrain
+	delayTrains     []DelayTrain
+	operationStatus string
 )
 
 type DelayTrain struct {
@@ -43,15 +44,15 @@ func main() {
 			log.Fatal(err)
 		}
 
+		operationStatus = "正常に運行しています"
+
 		for _, train := range delayTrains {
 			if targetTrain == train.Name {
-				fmt.Println("遅延しています。最終更新: %v", train.LastUpdateGmt)
-				continue
-			} else {
-				fmt.Println("正常に運行しています")
+				operationStatus = "遅延しています。"
 			}
 		}
 
+		fmt.Println(operationStatus)
 		return nil
 	}
 
