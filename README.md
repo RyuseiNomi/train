@@ -26,6 +26,11 @@ go get github.com/RyuseiNomi/train
 train [Route Name]
 ```
 
+As below
+ 
+```
+train 山手線
+```
 
 
 ## Reference
