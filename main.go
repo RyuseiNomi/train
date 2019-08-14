@@ -1,29 +1,17 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"log"
-	"net/http"
 	"os"
 
+	job "github.com/RyuseiNomi/train/job"
 	"github.com/urfave/cli"
 )
 
 var (
-	delayTrains     []DelayTrain
 	operationStatus string
 )
-
-type DelayTrain struct {
-	Name          string `json:"name"`
-	Company       string `json:"company"`
-	LastUpdateGmt int    `json:"lastupdate_gmt"`
-	Source        string `json:"source"`
-}
-
-type DelayTrains []DelayTrain
 
 func main() {
 	app := cli.NewApp()
@@ -35,23 +23,23 @@ func main() {
 	app.Action = func(context *cli.Context) error {
 
 		targetTrain := context.Args().Get(0)
-		jsonBytes, err := getJSON()
+		jsonBytes, err := job.GetJSON()
 		if err != nil {
 			log.Fatal("Getting response failed: %v", err)
 		}
 
-		if err := parseJSONtoDelayTrain(jsonBytes); err != nil {
+		delayTrains, err := job.ParseJSONtoDelayTrain(jsonBytes)
+		if err != nil {
 			log.Fatal(err)
 		}
 
+		//TODO このブロックをjobに切り出す
 		operationStatus = "正常に運行しています"
-
 		for _, train := range delayTrains {
 			if targetTrain == train.Name {
 				operationStatus = "遅延しています。"
 			}
 		}
-
 		fmt.Println(operationStatus)
 		return nil
 	}
@@ -59,23 +47,4 @@ func main() {
 	if err := app.Run(os.Args); err != nil {
 		log.Fatal(err)
 	}
-}
-
-func getJSON() ([]byte, error) {
-	//FIXME 毎回APIを叩くと遅いので、最終レスポンスから１時間経過していない場合は処理をskipさせる
-	response, err := http.Get("https://tetsudo.rti-giken.jp/free/delay.json")
-
-	defer response.Body.Close()
-
-	jsonBytes, err := ioutil.ReadAll(response.Body)
-
-	return jsonBytes, err
-}
-
-func parseJSONtoDelayTrain(jsonBytes []byte) error {
-	if err := json.Unmarshal(jsonBytes, &delayTrains); err != nil {
-		return err
-	}
-
-	return nil
 }
