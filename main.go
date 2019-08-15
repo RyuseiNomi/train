@@ -9,10 +9,6 @@ import (
 	"github.com/urfave/cli"
 )
 
-var (
-	operationStatus string
-)
-
 func main() {
 	app := cli.NewApp()
 
@@ -33,13 +29,8 @@ func main() {
 			log.Fatal(err)
 		}
 
-		//TODO このブロックをjobに切り出す
-		operationStatus = "正常に運行しています"
-		for _, train := range delayTrains {
-			if targetTrain == train.Name {
-				operationStatus = "遅延しています。"
-			}
-		}
+		operationStatus := job.GetOperationStatus(targetTrain, delayTrains)
+
 		fmt.Println(operationStatus)
 		return nil
 	}
